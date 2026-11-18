@@ -893,7 +893,8 @@
   function initNavMenus() {
     var nav = $(".az-nav");
     if (!nav) return;
-    var small = window.matchMedia("(max-width: 900px)");
+    // same condition as the CSS: narrow screens and every touch device (incl. "Desktop site" on phones)
+    var small = window.matchMedia("(max-width: 1199px), (hover: none)");
     var items = $$(".az-link3", nav);
 
     function closeAll(except) {
@@ -944,6 +945,7 @@
     });
     nav.addEventListener("scroll", function () { closeAll(); }, { passive: true });
     window.addEventListener("resize", function () { closeAll(); });
+    if (small.addEventListener) small.addEventListener("change", function () { closeAll(); });
   }
 
   /* ---------- deals page: working search, filters, sort ---------- */
