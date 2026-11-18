@@ -607,15 +607,8 @@
     scrim.className = "az-scrim";
     document.body.appendChild(scrim);
 
-    var btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "az-menu-btn";
-    btn.setAttribute("aria-label", "Open menu");
-    btn.setAttribute("aria-expanded", "false");
-    btn.setAttribute("aria-controls", "az-side");
-    btn.innerHTML = '<i class="fa-solid fa-bars"></i>';
-    top.insertBefore(btn, top.firstChild);
-
+    // The nav's "☰ All" link is the only menu trigger (a second ☰ button in the
+    // header showed the same icon twice on phones).
     var allLink = $("a", nav);
     allLink.setAttribute("data-open-side", "");
     allLink.setAttribute("aria-controls", "az-side");
@@ -626,7 +619,6 @@
       document.body.classList.toggle("az-side-open", open);
       side.classList.toggle("open", open);
       side.setAttribute("aria-hidden", !open);
-      btn.setAttribute("aria-expanded", open);
       allLink.setAttribute("aria-expanded", open);
       if (open) {
         opener = from || document.activeElement;
@@ -640,9 +632,6 @@
     allLink.addEventListener("click", function (e) {
       e.preventDefault();
       set(true, allLink);
-    });
-    btn.addEventListener("click", function () {
-      set(true, btn);
     });
     $(".az-side-x", side).addEventListener("click", function () {
       set(false);
@@ -736,25 +725,58 @@
     Array.prototype.forEach.call(document.querySelectorAll(".cx"), initCarouselRoot);
   }
 
-  /* ---------- dark mode ---------- */
+  /* ---------- theme (light / dark) ----------
+     One source of truth: Theme decides, applies and announces the mode.
+     - saved choice (localStorage) wins, otherwise the system setting is followed live
+     - sets  html.az-dark , html[data-theme] and color-scheme  (CSS swaps colours and logos)
+     - fires "azthemechange" so anything else (the toggle, future widgets) can react
+     - stays in sync across tabs */
+  var THEME_KEY = "azclone.theme";
+  var Theme = {
+    mq: window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null,
+    saved: function () {
+      try {
+        var v = localStorage.getItem(THEME_KEY);
+        return v === "dark" || v === "light" ? v : null;
+      } catch (e) {
+        return null;
+      }
+    },
+    isDark: function () {
+      var s = this.saved();
+      return s ? s === "dark" : !!(this.mq && this.mq.matches);
+    },
+    apply: function () {
+      var dark = this.isDark();
+      var root = document.documentElement;
+      root.classList.toggle("az-dark", dark);
+      root.setAttribute("data-theme", dark ? "dark" : "light");
+      root.style.colorScheme = dark ? "dark" : "light";
+      document.dispatchEvent(
+        new CustomEvent("azthemechange", { detail: { dark: dark } }),
+      );
+      return dark;
+    },
+    set: function (mode) {
+      try {
+        localStorage.setItem(THEME_KEY, mode);
+      } catch (e) {}
+      return this.apply();
+    },
+    toggle: function () {
+      return this.set(this.isDark() ? "light" : "dark");
+    },
+  };
+  Theme.apply(); // run immediately: no flash of the wrong theme
+
   function initTheme() {
-    var saved = null;
-    try {
-      saved = localStorage.getItem("azclone.theme");
-    } catch (e) {}
-    var dark = saved
-      ? saved === "dark"
-      : window.matchMedia("(prefers-color-scheme: dark)").matches;
-    function apply() {
-      document.documentElement.classList.toggle("az-dark", dark);
-    }
-    apply();
     var host = $(".az-top");
     var lang = $(".az-lang");
     var b = document.createElement("button");
     b.type = "button";
     b.className = "az-theme-btn";
     function label() {
+      var dark = Theme.isDark();
       b.innerHTML =
         '<i class="fa-solid ' + (dark ? "fa-sun" : "fa-moon") + '"></i>';
       b.setAttribute(
@@ -764,13 +786,23 @@
     }
     label();
     b.addEventListener("click", function () {
-      dark = !dark;
-      try {
-        localStorage.setItem("azclone.theme", dark ? "dark" : "light");
-      } catch (e) {}
-      apply();
-      label();
+      Theme.toggle();
     });
+    document.addEventListener("azthemechange", label);
+
+    // system setting changed (only matters while there is no saved choice)
+    if (Theme.mq) {
+      var onSystem = function () {
+        if (!Theme.saved()) Theme.apply();
+      };
+      if (Theme.mq.addEventListener) Theme.mq.addEventListener("change", onSystem);
+      else if (Theme.mq.addListener) Theme.mq.addListener(onSystem);
+    }
+    // another tab changed the choice
+    window.addEventListener("storage", function (e) {
+      if (e.key === THEME_KEY) Theme.apply();
+    });
+
     if (host)
       host.insertBefore(b, lang ? lang.nextSibling : $(".az-cart", host));
     else {
@@ -780,6 +812,41 @@
         auth.appendChild(b);
       }
     }
+  }
+
+  /* ---------- sign-in form: validate the mobile number / email field ---------- */
+  function initAuthForm() {
+    var form = $("form.az-auth-box");
+    if (!form) return;
+    var input = $("input", form);
+    var err = $(".az-field-error", form);
+    if (!input || !err) return;
+    function isValid(v) {
+      var email = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+      var phone = /^\+?[\d\s().-]{7,20}$/.test(v) && v.replace(/\D/g, "").length >= 7;
+      return email || phone;
+    }
+    function fail(msg) {
+      err.textContent = msg;
+      err.hidden = false;
+      input.setAttribute("aria-invalid", "true");
+      input.focus();
+    }
+    function clear() {
+      err.hidden = true;
+      err.textContent = "";
+      input.removeAttribute("aria-invalid");
+    }
+    input.addEventListener("input", clear);
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var v = input.value.trim();
+      if (!v) return fail("Enter your mobile number or email");
+      if (!isValid(v))
+        return fail("Enter a valid mobile number or email address");
+      clear();
+      toast("Demo only: there is no sign-in server behind this form.");
+    });
   }
 
   /* ---------- quick "Add to Cart" on product cards ---------- */
@@ -822,14 +889,61 @@
     });
   }
 
-  /* ---------- nav dropdown buttons: on small screens (no hover) go straight to deals ---------- */
+  /* ---------- nav dropdowns: hover/focus on desktop, tap to open on small screens ---------- */
   function initNavMenus() {
+    var nav = $(".az-nav");
+    if (!nav) return;
     var small = window.matchMedia("(max-width: 900px)");
-    $$(".az-nav .dropbtn2").forEach(function (btn) {
+    var items = $$(".az-link3", nav);
+
+    function closeAll(except) {
+      items.forEach(function (item) {
+        if (item === except) return;
+        item.classList.remove("is-open");
+        var btn = $(".dropbtn2", item);
+        var panel = $(".dropdown-content2", item);
+        if (btn) btn.setAttribute("aria-expanded", "false");
+        if (panel) {
+          panel.style.top = "";
+          panel.style.left = "";
+        }
+      });
+    }
+
+    // the panel is position:fixed on small screens, so place it under its button
+    function place(item) {
+      var btn = $(".dropbtn2", item);
+      var panel = $(".dropdown-content2", item);
+      if (!btn || !panel) return;
+      var r = btn.getBoundingClientRect();
+      var left = Math.max(8, Math.min(r.left, window.innerWidth - panel.offsetWidth - 8));
+      panel.style.top = Math.round(r.bottom) + "px";
+      panel.style.left = Math.round(left) + "px";
+    }
+
+    items.forEach(function (item) {
+      var btn = $(".dropbtn2", item);
+      if (!btn) return; // plain links (e.g. "Pet Supplies") have no menu
+      btn.setAttribute("aria-haspopup", "true");
+      btn.setAttribute("aria-expanded", "false");
       btn.addEventListener("click", function () {
-        if (small.matches) location.href = "deals.html";
+        if (!small.matches) return; // desktop: the CSS hover/focus rules open it
+        var open = !item.classList.contains("is-open");
+        closeAll(item);
+        item.classList.toggle("is-open", open);
+        btn.setAttribute("aria-expanded", String(open));
+        if (open) place(item);
       });
     });
+
+    document.addEventListener("click", function (e) {
+      if (!e.target.closest(".az-link3")) closeAll();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeAll();
+    });
+    nav.addEventListener("scroll", function () { closeAll(); }, { passive: true });
+    window.addEventListener("resize", function () { closeAll(); });
   }
 
   /* ---------- deals page: working search, filters, sort ---------- */
@@ -970,6 +1084,7 @@
     initDrawer();
     initQuickAdd();
     initAccountMenu();
+    initAuthForm();
     initNavMenus();
     initDeals();
     var root = $("#az-cart-root");
