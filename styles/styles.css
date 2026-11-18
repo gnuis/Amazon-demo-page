@@ -326,10 +326,6 @@
     .az-nav::-webkit-scrollbar {
       display: none;
     }
-
-    .az-link3 .dropdown-content2 {
-      display: none !important;
-    }
   }
 
   main {
@@ -511,7 +507,8 @@
     }
 
     .az-loc,
-    .az-link, .az-link2, small {
+    .az-link,
+    .az-link2 {
       display: none;
     }
 
@@ -2415,17 +2412,19 @@
   .az-prodwrap {
     flex: 0 0 210px;
     scroll-snap-align: start;
-    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     min-width: 0;
   }
 
   .az-prodwrap>.az-prod {
-    flex: none;
+    flex: 1 1 auto;
   }
 
   .az-quick {
     width: 100%;
-    margin-top: 8px;
+    margin-top: auto;
     padding: 8px 12px;
     font-size: 14px;
   }
@@ -2951,3 +2950,689 @@ align-items: center;
       gap: 6px 10px;
     }
   }
+
+
+  /* =====================================================================
+     v8 — responsive system: header, navbar, search, main grid, buttons
+     Breakpoints
+       >= 1101px  desktop
+        901-1100  small desktop / "Desktop site" on a phone
+        601-900   tablet
+       <= 600px   phone      (<= 380px small phone)
+     ===================================================================== */
+
+  /* ---- search: the input may shrink, the button never does ---- */
+  .az-search {
+    min-width: 0;
+  }
+
+  .az-search select {
+    flex: 0 0 auto;
+    max-width: 120px;
+  }
+
+  .az-search input {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .az-search button {
+    flex: 0 0 46px;
+    width: 46px;
+    color: var(--az-navy);
+  }
+
+  /* ---- header: one row on desktop sizes ---- */
+  @media (min-width: 901px) {
+    .az-top {
+      flex-wrap: nowrap;
+    }
+
+    .az-search {
+      flex: 1 1 220px;
+    }
+
+    .az-loc,
+    .az-link,
+    .az-link2,
+    .az-cart,
+    .az-lang,
+    .az-theme-btn,
+    .az-logo {
+      flex: 0 0 auto;
+    }
+  }
+
+  /* ---- small desktop / desktop-site on a phone ---- */
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .az-top {
+      gap: 6px;
+      padding: 8px 10px;
+    }
+
+    .az-lang {
+      display: none;
+    }
+
+    .az-nav {
+      padding: 2px 8px;
+    }
+
+    .az-nav > a,
+    .az-nav .dropbtn2 {
+      padding: 8px 6px;
+      font-size: 13px;
+    }
+  }
+
+  /* ---- tablet + phone: two-row header (menu, logo, account, cart / full-width search) ---- */
+  @media (max-width: 900px) {
+    .az-top {
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px 6px;
+      padding: 8px 10px;
+    }
+
+    .az-menu-btn {
+      order: 0;
+      display: block;
+    }
+
+    .az-top .az-logo {
+      order: 1;
+      margin-right: auto;
+      min-width: 0;
+    }
+
+    .az-top img {
+      height: 38px;
+      padding: 0 4px;
+    }
+
+    .az-theme-btn {
+      order: 2;
+    }
+
+    .az-link2 {
+      order: 3;
+    }
+
+    .az-cart {
+      order: 4;
+    }
+
+    .az-search {
+      order: 10;
+      flex: 1 0 100%;
+      height: 44px;
+    }
+
+    .az-search input {
+      font-size: 16px; /* stops iOS zoom-on-focus */
+    }
+
+    .az-loc,
+    .az-link,
+    .az-lang {
+      display: none;
+    }
+
+    .az-link2 .dropbtn {
+      padding: 2px 6px;
+    }
+
+    .az-cart b {
+      display: none;
+    }
+
+    .az-cart {
+      font-size: 26px;
+      padding: 4px 8px;
+    }
+
+    .az-nav {
+      padding: 0 6px;
+    }
+  }
+
+  /* ---- phone ---- */
+  @media (max-width: 600px) {
+    .az-link2 {
+      display: none;
+    }
+
+    .az-search select {
+      display: none;
+    }
+
+    .az-top .az-logo {
+      font-size: 20px;
+    }
+
+    .az-top img {
+      height: 32px;
+    }
+  }
+
+  /* the cart count must never push the page wider than the screen */
+  .az-cart-n {
+    left: auto;
+    right: 4px;
+  }
+
+  @media (min-width: 901px) {
+    .az-cart-n {
+      left: 14px;
+      right: auto;
+    }
+  }
+
+  /* ---- main grid: 4 columns -> 2 columns, never ragged ---- */
+  .az-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 20px;
+    padding: 0 20px;
+  }
+
+  .az-card {
+    min-width: 0;
+  }
+
+  .az-card .az-quad {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .az-quad a {
+    min-width: 0;
+  }
+
+  .az-quad span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* dark title text needs a light veil where the photo is dark */
+  .cx-light h2 {
+    background: linear-gradient(oklch(1 0 0 / .85), transparent);
+  }
+
+  .az-card > .az-more {
+    margin-top: auto;
+  }
+
+  .az-signin-card .az-btn {
+    width: 100%;
+  }
+
+  @media (max-width: 899px) {
+    .az-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 700px) {
+    .az-grid {
+      gap: 10px;
+      padding: 0 10px;
+    }
+
+    .az-card {
+      padding: 12px;
+      gap: 8px;
+    }
+
+    .az-card h2 {
+      font-size: 16px;
+      line-height: 1.2;
+    }
+
+    .az-quad {
+      gap: 8px;
+    }
+
+    .az-quad a {
+      font-size: 11px;
+    }
+
+    .az-quad span {
+      font-size: 11px;
+    }
+
+    .az-card a,
+    .az-signin-card p {
+      font-size: 12px;
+    }
+
+    .az-row {
+      margin: 10px;
+      padding: 12px;
+    }
+
+    .az-row-h {
+      flex-wrap: wrap;
+      gap: 4px 12px;
+    }
+
+    .az-row-h h2 {
+      font-size: 18px;
+    }
+
+    .az-signin-strip .az-btn {
+      width: min(100%, 320px);
+    }
+  }
+
+  @media (max-width: 400px) {
+    .az-card {
+      padding: 10px;
+    }
+
+    .az-quad a,
+    .az-quad span {
+      font-size: 10px;
+    }
+  }
+
+  @media (max-width: 340px) {
+    .az-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* ---- carousel controls: sized per breakpoint ---- */
+  @media (max-width: 900px) {
+    main > .cx {
+      margin: 12px 12px 0;
+    }
+
+    .cx-btn {
+      width: 34px;
+      height: 64px;
+      font-size: 16px;
+    }
+  }
+
+  @media (max-width: 700px) {
+    main > .cx {
+      margin: 10px 10px 0;
+    }
+  }
+
+  @media (pointer: coarse) {
+    .cx-pause {
+      width: 36px;
+      height: 36px;
+    }
+
+    .az-more,
+    .az-card > a {
+      padding-block: 4px;
+    }
+
+    .az-btn {
+      min-height: 44px;
+    }
+  }
+
+  /* ---- footer / rows on small screens ---- */
+  @media (max-width: 600px) {
+    .az-foot {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      padding: 24px 14px;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .az-foot {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* 360px phones are the most common size: keep two product columns (single column only on very small screens) */
+  @media (min-width: 341px) and (max-width: 380px) {
+    .az-results-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+  }
+
+  @media (max-width: 340px) {
+    .az-results-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+
+  /* =====================================================================
+     v9 — sign-in page: theme-aware logo, readable footer in light + dark
+     (swaps with html.az-dark, which cart.js sets from the saved / system theme)
+     ===================================================================== */
+
+  /* ---- brand logo above the form: dark artwork on light, white artwork on dark ---- */
+  .az-brand {
+    display: flex;
+    justify-content: center;
+  }
+
+  .az-brand img {
+    display: block;
+    width: 132px;
+    height: auto;
+    aspect-ratio: 1024 / 309; /* trims the empty strip under the smile */
+    object-fit: cover;
+    object-position: 0 0;
+  }
+
+  .az-brand .az-brand-dark {
+    display: none;
+  }
+
+  .az-dark .az-brand .az-brand-light {
+    display: none;
+  }
+
+  .az-dark .az-brand .az-brand-dark {
+    display: block;
+  }
+
+  /* the old empty text-logo link would only add a blank gap */
+  .az-logo1:empty {
+    display: none;
+  }
+
+  /* ---- page + the colour variables the pasted Amazon classes read ---- */
+  .az-auth {
+    min-height: 100vh;
+    min-height: 100dvh;
+    box-sizing: border-box;
+    --__dChNmAmGoMXsw4B: oklch(0.15 0 0);   /* text */
+    --__dChNmAwPaMXsw4B: oklch(0.42 0 0);   /* secondary text */
+    --__dChNmAwPaMXsTxp: oklch(0.85 0 0);   /* dividers / borders */
+    --__dChsbGMXsw4B: var(--az-link);       /* links */
+  }
+
+  .az-dark .az-auth {
+    --__dChNmAmGoMXsw4B: oklch(0.93 0 0);
+    --__dChNmAwPaMXsw4B: oklch(0.74 0 0);
+    --__dChNmAwPaMXsTxp: oklch(0.4 0 0);
+  }
+
+  /* ".az a { color: inherit }" wins over .a-link-normal, so state the link colour here */
+  .az-auth a.a-link-normal,
+  .az-auth-box .az-muted a {
+    color: var(--az-link);
+  }
+
+  .az-auth a.a-link-normal:hover,
+  .az-auth-box .az-muted a:hover {
+    color: var(--az-red);
+    text-decoration: underline;
+  }
+
+  .az-auth .a-text-bold {
+    color: inherit;
+  }
+
+  /* ---- footer: a plain divider (the pasted gradient strip washed it out in dark mode) ---- */
+  .az-auth .a-divider.a-divider-section .a-divider-inner {
+    height: 0;
+    margin: 0;
+    border-top: 1px solid var(--__dChNmAwPaMXsTxp);
+  }
+
+  .az-auth .a-divider.a-divider-section .a-divider-inner::after {
+    content: none;
+    height: 0;
+    background: none;
+  }
+
+  .az-auth .ax-stack-item {
+    width: 100%;
+    max-width: 560px;
+  }
+
+  .az-auth .ax-page-footer {
+    width: 100%;
+    max-width: 560px;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .az-auth .ax-page-footer__links {
+    gap: 6px 22px;
+    padding-top: 14px;
+  }
+
+  .az-auth .ax-page-footer__links a {
+    white-space: nowrap;
+  }
+
+  .az-auth .ax-page-footer__copyright-row {
+    padding-bottom: 12px;
+  }
+
+  @media (max-width: 600px) {
+    .az-auth {
+      padding: 16px 12px;
+      gap: 14px;
+    }
+
+    .az-auth .ax-page-footer__links {
+      gap: 6px 16px;
+    }
+
+    .az-brand img {
+      width: 116px;
+    }
+  }
+
+
+  /* =====================================================================
+     v10 — sign-in input: a standard, accessible text field
+     ===================================================================== */
+  .az-auth-box label {
+    gap: 6px;
+    font-weight: 700;
+  }
+
+  .az-auth-box label input {
+    width: 100%;
+    height: 44px;
+    box-sizing: border-box;
+    padding: 0 12px;
+    font: inherit;
+    font-size: 16px; /* also stops iOS zoom-on-focus */
+    font-weight: 400;
+    color: oklch(0.15 0 0);
+    background: var(--az-on-dark);
+    border: 1px solid oklch(0.62 0 0);
+    border-radius: 6px;
+    box-shadow: inset 0 1px 2px oklch(0 0 0 / .1);
+    transition: border-color .15s, box-shadow .15s;
+  }
+
+  .az-auth-box label input::placeholder {
+    color: oklch(0.55 0 0);
+    font-weight: 400;
+    opacity: 1;
+  }
+
+  .az-auth-box label input:hover {
+    border-color: oklch(0.45 0 0);
+  }
+
+  .az-auth-box label input:focus,
+  .az-auth-box label input:focus-visible {
+    outline: 0;
+    border-color: oklch(0.68 0.16 60);
+    box-shadow: 0 0 0 3px oklch(0.77 0.16 70 / .4);
+  }
+
+  /* error state (set by cart.js: aria-invalid + message) */
+  .az-auth-box label input[aria-invalid="true"] {
+    border-color: var(--az-red);
+    box-shadow: 0 0 0 3px oklch(0.5 0.2 27 / .18);
+  }
+
+  .az-field-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: -6px;
+    color: var(--az-red);
+    font-size: 13px;
+    line-height: 1.3;
+  }
+
+  .az-field-error[hidden] {
+    display: none;
+  }
+
+  .az-field-error::before {
+    content: "!";
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--az-red);
+    color: var(--az-on-dark);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+  }
+
+  /* browser autofill should not paint its own yellow/blue */
+  .az-auth-box label input:-webkit-autofill {
+    -webkit-text-fill-color: oklch(0.15 0 0);
+    box-shadow: inset 0 0 0 1000px var(--az-on-dark);
+  }
+
+  .az-dark .az-auth-box label input {
+    color: oklch(0.95 0 0);
+    background: oklch(0.2 0.01 250);
+    border-color: oklch(0.55 0 0);
+    box-shadow: inset 0 1px 2px oklch(0 0 0 / .4);
+  }
+
+  .az-dark .az-auth-box label input::placeholder {
+    color: oklch(0.65 0 0);
+  }
+
+  .az-dark .az-auth-box label input:hover {
+    border-color: oklch(0.7 0 0);
+  }
+
+  .az-dark .az-auth-box label input:focus,
+  .az-dark .az-auth-box label input:focus-visible {
+    border-color: var(--az-orange);
+    box-shadow: 0 0 0 3px oklch(0.77 0.16 70 / .35);
+  }
+
+  .az-dark .az-auth-box label input[aria-invalid="true"] {
+    border-color: var(--az-red);
+    box-shadow: 0 0 0 3px oklch(0.72 0.17 25 / .25);
+  }
+
+  .az-dark .az-auth-box label input:-webkit-autofill {
+    -webkit-text-fill-color: oklch(0.95 0 0);
+    box-shadow: inset 0 0 0 1000px oklch(0.2 0.01 250);
+  }
+
+
+  /* =====================================================================
+     v11 — one menu trigger: the nav "☰ All" link. A header ☰ button would
+     show the same icon twice on phones, so it is never displayed.
+     ===================================================================== */
+  .az-top .az-menu-btn {
+    display: none;
+  }
+
+
+  /* =====================================================================
+     v12 — navbar dropdowns on touch / small screens: tap to open
+     (cart.js adds .is-open and positions the panel; it is fixed so the
+      scrolling nav strip cannot clip it)
+     ===================================================================== */
+  @media (max-width: 900px) {
+    .az-link3:hover .dropdown-content2,
+    .az-link3:focus-within .dropdown-content2 {
+      display: none;
+    }
+
+    .az-nav .az-link3:not(.is-open) > .dropbtn2 {
+      border-color: transparent;
+    }
+
+    .az-nav .az-link3:not(.is-open) > .dropbtn2 i {
+      transform: none;
+    }
+
+    .az-link3.is-open > .dropbtn2 {
+      border-color: var(--az-on-dark);
+    }
+
+    .az-link3.is-open > .dropbtn2 i {
+      transform: rotate(180deg);
+    }
+
+    .az-link3.is-open .dropdown-content2 {
+      display: block;
+      position: fixed;
+      z-index: 300;
+      min-width: 200px;
+      max-width: calc(100vw - 16px);
+      max-height: 60vh;
+      overflow-y: auto;
+      border-radius: 6px;
+    }
+
+    .az-link3 .dropdown-content2 a {
+      padding: 12px 16px; /* comfortable tap targets */
+    }
+  }
+
+
+  /* =====================================================================
+     v13 — product rows: every "Add to Cart" button (and the stars / price /
+           delivery line above it) lines up across the cards in a row.
+           Selectors are specific on purpose so no earlier .az-prodwrap block
+           (display: block) can stack the button straight under the text again.
+     ===================================================================== */
+  .az-scroll {
+    align-items: stretch;
+  }
+
+  .az-scroll > .az-prodwrap {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    gap: 8px;
+  }
+
+  .az-scroll > .az-prodwrap > .az-prod {
+    flex: 1 1 auto;
+  }
+
+  .az-scroll > .az-prodwrap > .az-quick {
+    flex: 0 0 auto;
+    margin-top: auto;
+  }
+
+  /* every title takes the same room (3 lines, then an ellipsis) */
+  .az-scroll .az-prod h3 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+    line-height: 1.3;
+    min-height: calc(3 * 1.3em);
+  }
+
